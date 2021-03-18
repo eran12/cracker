@@ -3,7 +3,7 @@ package com.eran.master.services
 import com.eran.master.beans.MinionHandler
 import com.eran.master.modules.MinionPayload
 import com.eran.master.properties.MasterProperties
-import com.eran.master.utils.phoneIncrement
+import com.eran.utils.phoneIncrement
 import java.time.Instant
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -34,12 +34,12 @@ class MasterService(
         while (!minionHandler.getMd5Object(md5).found) {
             Thread.sleep(100)
         }
-        log.info("number found in ${System.currentTimeMillis() - start}")
+        log.info("number found in ${System.currentTimeMillis() - start} ms")
         return ResponseEntity.ok(minionHandler.getMd5Object(md5).currentNumber)
     }
 
     fun handleError(minionPayload: MinionPayload, retry: Boolean = true) {
-        log.info("handle error")
+        log.debug("handle error")
         if (retry && minionPayload.maxAttempts < masterProperties.maxAttempts) {
             sendMinionRequest(
                 minionPayload.copy(
@@ -53,7 +53,7 @@ class MasterService(
     }
 
     fun handleFail(minionPayload: MinionPayload) {
-        log.info("handle fail")
+        log.debug("handle fail")
         val md5Object = minionHandler.getMd5Object(minionPayload.md5)
         if (minionPayload.lastNumber.length > 11) {
             if (!md5Object.found) {

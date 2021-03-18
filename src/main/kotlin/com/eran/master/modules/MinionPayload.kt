@@ -1,6 +1,6 @@
 package com.eran.master.modules
 
-import com.eran.master.utils.MasterUtils
+import com.eran.utils.MasterUtils
 import java.net.InetAddress
 import java.time.Instant
 

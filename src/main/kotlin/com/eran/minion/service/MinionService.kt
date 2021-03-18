@@ -1,8 +1,8 @@
 package com.eran.minion.service
 
-import com.eran.minion.extensions.phoneIncrement
-import com.eran.minion.extensions.toMd5Hash
 import com.eran.minion.module.MinionPayload
+import com.eran.utils.phoneIncrement
+import com.eran.utils.toMd5Hash
 import java.util.concurrent.Executors
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -19,17 +19,17 @@ class MinionService(private val rest: RestTemplate = RestTemplate()) {
     private val executor = Executors.newSingleThreadExecutor()
 
     fun startCalculate(minionPayload: MinionPayload) {
-        log.info("start calculate")
+        log.debug("start calculate")
         val firstPhone = minionPayload.lastNumber
         var phone = minionPayload.lastNumber
-        log.info("check md5 for: $phone")
+        log.debug("check md5 for: $phone")
         executor.execute {
             repeat(minionPayload.increment) {
                 if (phone.toMd5Hash().compareTo(minionPayload.md5) == 0) {
                     handleSuccess(minionPayload.copy(lastNumber = phone))
                     return@execute
                 }
-                phone = phone.phoneIncrement()
+                phone = phone.phoneIncrement(1)
             }
             log.info("done checking range md5 form: $firstPhone to $phone")
             handleFail(minionPayload.copy(lastNumber = phone))
@@ -37,7 +37,7 @@ class MinionService(private val rest: RestTemplate = RestTemplate()) {
     }
 
     private fun handleFail(minionPayload: MinionPayload) {
-        log.info("handle minion fail")
+        log.debug("handle minion fail")
         sendRequest(minionPayload, minionPayload.masterAddresses.fails)
     }
 
@@ -47,7 +47,7 @@ class MinionService(private val rest: RestTemplate = RestTemplate()) {
     }
 
     private fun sendRequest(minionPayload: MinionPayload, url: String) {
-        log.info("sending request to master: ${minionPayload.lastNumber}")
+        log.debug("sending request to master: ${minionPayload.lastNumber}")
         try {
             val response = rest.postForEntity(
                 url,
@@ -63,9 +63,7 @@ class MinionService(private val rest: RestTemplate = RestTemplate()) {
     }
 
     private fun handleError(minionPayload: MinionPayload) {
-        log.info("handling minion error: ${minionPayload.lastNumber}")
+        log.debug("handling minion error: ${minionPayload.lastNumber}")
         sendRequest(minionPayload, minionPayload.masterAddresses.error)
     }
 }
-
-fun MinionPayload.getLastNumber() = lastNumber

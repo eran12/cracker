@@ -24,32 +24,32 @@ class MinionHandler(private val properties: MasterProperties) {
 
     fun addMinion(minionPayload: MinionPayload) {
         if (minionsExcluded[minionPayload.address] != null) {
-            log.info("before adding to list remove from exclude")
+            log.debug("before adding to list remove from exclude")
             removeMinionFromExclude(minionPayload)
         }
-        log.info("adding minion to list: $minionPayload")
+        log.debug("adding minion to list: $minionPayload")
         minionsList[minionPayload.address] = minionPayload
     }
 
     fun addMinionToExclude(minionPayload: MinionPayload) {
         removeMinionFromList(minionPayload)
-        log.info("adding minion to exclude: $minionPayload")
+        log.debug("adding minion to exclude: $minionPayload")
         minionsExcluded[minionPayload.address] = minionPayload
     }
 
     private fun removeMinionFromList(minionPayload: MinionPayload): Boolean {
-        log.info("remove minion from list: $minionPayload")
+        log.debug("remove minion from list: $minionPayload")
         return minionsList.remove(minionPayload.address, minionPayload)
     }
 
     private fun removeMinionFromExclude(minionPayload: MinionPayload): Boolean {
-        log.info("remove minion from exclude: $minionPayload")
+        log.debug("remove minion from exclude: $minionPayload")
         return minionsExcluded.remove(minionPayload.address, minionPayload)
     }
 
     fun getMinionFromExclude(): MinionPayload? {
         val minionPayload = minionsExcluded.values.firstOrNull()
-        log.info("get minion from exclude: $minionPayload")
+        log.debug("get minion from exclude: $minionPayload")
         return minionPayload
     }
 
@@ -69,6 +69,7 @@ class MinionHandler(private val properties: MasterProperties) {
 
     @Scheduled(fixedDelay = 5000L)
     fun checkMinionsRequestsTimeout() {
+        log.info("check if minions can come out from exclude list")
         if (minionsList.isNotEmpty()) {
             val currentTime = Instant.now()
             minionsList.values.forEach {

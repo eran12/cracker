@@ -35,7 +35,7 @@ class MasterController(val masterService: MasterService) {
         masterService.handleSuccess(payload)
     }
 
-    @GetMapping("/check/{md5}")
+    @GetMapping("/checkFound/{md5}")
     fun checkIfMd5Found(@PathVariable("md5") md5: String): ResponseEntity<String> {
         return masterService.checkIfMd5Found(md5)
     }
