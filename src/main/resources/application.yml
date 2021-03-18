@@ -1,0 +1,5 @@
+master:
+  max-attempts: 5
+  increment: 10000
+  minions:
+    - http://localhost:8083
